@@ -2,6 +2,7 @@ import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Joy
 from geometry_msgs.msg import Twist
+import time
 
 
 def map_value(value):
@@ -23,15 +24,17 @@ class MinimalSubscriber(Node):
             self.listener_callback,
             10)
         self.subscription
+        
         self.publishers_ = self.create_publisher(Twist, 'mt_cmd_vel', 10)
+
 
     def listener_callback(self, msg):
         rover_msg = Twist()
         x_axis = msg.axes[2]
         y_axis = msg.axes[1]
         base_threshold = map_value(msg.axes[3])
-        linear_threshold = base_threshold
-        angular_threshold = int(base_threshold/5)
+        linear_threshold = 4
+        angular_threshold = 7
         clutch = msg.buttons[0]
 
         if(clutch == 1):
@@ -55,7 +58,7 @@ class MinimalSubscriber(Node):
         else:
             rover_msg.linear.x = 0.0
             rover_msg.angular.z = 0.0
-
+        time.sleep(1.0)
         self.publishers_.publish(rover_msg)
 
 def main(args=None):
